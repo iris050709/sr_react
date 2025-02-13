@@ -1,0 +1,53 @@
+.perfil-usuario {
+    background-color: #e3f2fd; /* Azul claro */
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 400px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.rol {
+    color: #0d47a1; /* Azul oscuro */
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.perfil-imagen {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid #1976d2; /* Borde azul */
+    margin: 10px 0;
+}
+
+.nombre {
+    color: #0d47a1;
+    font-size: 1.8em;
+}
+
+.correo, .sexo, .fecha-nacimiento {
+    color: #1565c0;
+    font-size: 1.1em;
+}
+
+.imagen-no-disponible {
+    color: red;
+    font-weight: bold;
+}
+
+.boton-salir {
+    background-color: #0d47a1;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.boton-salir:hover {
+    background-color: #1565c0;
+}
