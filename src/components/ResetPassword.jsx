@@ -1,69 +1,67 @@
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import "../css/ResetPassword.css"; // Agrega estilos si es necesario
-//1234ABCd@9
 
 const ResetPassword = () => {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({ correo: "", nuevaPassword: "" });
-    const [message, setMessage] = useState("");
-    const [error, setError] = useState("");
+    const location = useLocation();
+    const { correo, codigo } = location.state || {};
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!formData.correo || !formData.nuevaPassword) {
+        if (!newPassword || !confirmPassword) {
             setError("Todos los campos son obligatorios.");
             return;
         }
-
-        setError("");
-        setMessage("");
+        if (newPassword !== confirmPassword) {
+            setError("Las contraseñas no coinciden.");
+            return;
+        }
 
         try {
-            const response = await axios.post("http://localhost:3000/api/update-password", formData);
+            const response = await axios.post("http://localhost:3000/api/reset-password", {
+                correo,
+                codigo,
+                nuevaPassword: newPassword
+            });
 
             if (response.data.success) {
-                setMessage("Contraseña restablecida con éxito. Ahora puedes iniciar sesión.");
-                setTimeout(() => navigate("/"), 2000);
+                setSuccess("Contraseña restablecida con éxito. Redirigiendo...");
+                setTimeout(() => navigate("/"), 3000);
             } else {
-                setError("No se pudo restablecer la contraseña. Verifica tu correo.");
+                setError("El código es inválido o ha expirado.");
             }
         } catch (error) {
-            setError("Ocurrió un error. Inténtalo nuevamente.");
+            setError("Error al restablecer la contraseña.");
         }
     };
 
     return (
-        <div className="reset-password-container">
-            <form onSubmit={handleSubmit} className="reset-password-form">
-                <h2>Restablecer Contraseña</h2>
-                {error && <div className="error">{error}</div>}
-                {message && <div className="message">{message}</div>}
-
+        <div className="reset-container">
+            <h2>Restablecer Contraseña</h2>
+            {error && <div className="error">{error}</div>}
+            {success && <div className="success">{success}</div>}
+            <form onSubmit={handleSubmit}>
                 <input
-                    type="email"
-                    name="correo"
-                    placeholder="Correo"
-                    value={formData.correo}
-                    onChange={handleChange}
+                    type="password"
+                    placeholder="Nueva contraseña"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
                     className="input-field"
                 />
                 <input
                     type="password"
-                    name="nuevaPassword"
-                    placeholder="Nueva Contraseña"
-                    value={formData.nuevaPassword}
-                    onChange={handleChange}
+                    placeholder="Confirmar contraseña"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="input-field"
                 />
-
-                <button type="submit" className="btn-reset">Restablecer</button>
+                <button type="submit" className="btn-login">Restablecer</button>
             </form>
         </div>
     );

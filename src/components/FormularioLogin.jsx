@@ -1,23 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../css/FormularioLogin.css"; // Importar el archivo CSS
+import "../css/FormularioLogin.css";
 
 const FormularioLogin = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ correo: "", password: "" });
     const [error, setError] = useState("");
-    const [attempts, setAttempts] = useState(0);
     const [isBlocked, setIsBlocked] = useState(false);
-
-    useEffect(() => {
-        const blockedUntil = localStorage.getItem("blockedUntil");
-        if (blockedUntil && new Date().getTime() < blockedUntil) {
-            setIsBlocked(true);
-            const timeout = setTimeout(() => setIsBlocked(false), blockedUntil - new Date().getTime());
-            return () => clearTimeout(timeout);
-        }
-    }, []);
+    const [showReset, setShowReset] = useState(false);
+    const [resetEmail, setResetEmail] = useState("");
+    const [resetCode, setResetCode] = useState("");
+    const [showCodeInput, setShowCodeInput] = useState(false);
 
     const handleChange = (e) => {
         setFormData((prevState) => ({ ...prevState, [e.target.name]: e.target.value }));
@@ -25,89 +19,92 @@ const FormularioLogin = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (isBlocked) {
-            setError("Demasiados intentos fallidos. Inténtalo nuevamente en 3 minutos.");
-            return;
-        }
-
         if (!formData.correo || !formData.password) {
             setError("Todos los campos son obligatorios.");
             return;
         }
-
-        setError("");
-
         try {
             const response = await axios.post("http://localhost:3000/api/login", formData);
-
             if (response.data.success) {
                 localStorage.setItem("usuario", JSON.stringify(response.data.usuario));
-                localStorage.removeItem("blockedUntil");
-                setAttempts(0);
                 navigate("/perfil");
             } else {
-                handleFailedAttempt();
+                setError("Correo o contraseña incorrectos.");
             }
         } catch (error) {
-            handleFailedAttempt();
+            setError("Error al conectar con el servidor.");
         }
     };
 
-    const handleFailedAttempt = () => {
-        setAttempts((prev) => {
-            const newAttempts = prev + 1;
-            if (newAttempts >= 3) {
-                const blockedUntil = new Date().getTime() + 2 * 60 * 1000; // 3 minutos
-                localStorage.setItem("blockedUntil", blockedUntil);
-                setIsBlocked(true);
-                setTimeout(() => setIsBlocked(false), 2 * 60 * 1000);
-            }
-            return newAttempts;
-        });
-        setError("Correo o contraseña incorrectos.");
+    const handleForgotPassword = async () => {
+        try {
+            await axios.post("http://localhost:3000/api/send-reset-code", { correo: resetEmail });
+            setShowCodeInput(true);
+        } catch (error) {
+            setError("Error al enviar el código de recuperación.");
+        }
     };
 
     return (
         <div className="login-container">
-            <form onSubmit={handleSubmit} className="login-form">
-                <h2>Iniciar Sesión</h2>
-                {error && <div className="error">{error}</div>}
-
-                <input
-                    type="email"
-                    name="correo"
-                    placeholder="Correo"
-                    value={formData.correo}
-                    onChange={handleChange}
-                    className="input-field"
-                    disabled={isBlocked}
-                />
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Contraseña"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="input-field"
-                    disabled={isBlocked}
-                />
-
-                <button type="submit" className="btn-login" disabled={isBlocked}>Iniciar Sesión</button>
-                
-                <button 
-                    type="button" 
-                    className="forgot-password" 
-                    onClick={() => navigate("/reset-password")}
-                    disabled={isBlocked}
-                >
-                    ¿Olvidaste tu contraseña?
-                </button>
-            </form>
-
-            <p className="register-text">
-                ¿No tienes una cuenta? <button onClick={() => navigate("/register")} className="btn-register">Regístrate</button>
-            </p>
+            {!showReset ? (
+                <form onSubmit={handleSubmit} className="login-form">
+                    <h2>Iniciar Sesión</h2>
+                    {error && <div className="error">{error}</div>}
+                    <input
+                        type="email"
+                        name="correo"
+                        placeholder="Correo"
+                        value={formData.correo}
+                        onChange={handleChange}
+                        className="input-field"
+                        disabled={isBlocked}
+                    />
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Contraseña"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="input-field"
+                        disabled={isBlocked}
+                    />
+                    <button type="submit" className="btn-login" disabled={isBlocked}>Iniciar Sesión</button>
+                    <button type="button" className="forgot-password" onClick={() => setShowReset(true)}>
+                        ¿Olvidaste tu contraseña?
+                    </button>
+                    {/* Agregar la opción de registro */}
+                    <div className="register-link">
+                        <p>¿No tienes una cuenta? <a href="/register">Regístrate aquí</a></p>
+                    </div>
+                </form>
+            ) : !showCodeInput ? (
+                <div className="reset-container">
+                    <h2>Recuperar Contraseña</h2>
+                    <input
+                        type="email"
+                        placeholder="Ingresa tu correo"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        className="input-field"
+                    />
+                    <button onClick={handleForgotPassword} className="btn-login">Enviar Código</button>
+                </div>
+            ) : (
+                <div className="reset-container">
+                    <h2>Ingresar Código</h2>
+                    <input
+                        type="text"
+                        placeholder="Código de recuperación"
+                        value={resetCode}
+                        onChange={(e) => setResetCode(e.target.value)}
+                        className="input-field"
+                    />
+                    <button onClick={() => navigate("/reset-password", { state: { correo: resetEmail, codigo: resetCode } })} className="btn-login">
+                        Verificar Código
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
