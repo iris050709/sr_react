@@ -41,6 +41,10 @@ const ResetPassword = () => {
         }
     };
 
+    const handleCancel = () => {
+        navigate("/");  // Redirige al inicio
+    };
+
     return (
         <div className="reset-container">
             <h2>Restablecer Contraseña</h2>
@@ -62,6 +66,7 @@ const ResetPassword = () => {
                     className="input-field"
                 />
                 <button type="submit" className="btn-login">Restablecer</button>
+                <button type="button" className="btn-cancel" onClick={handleCancel}>Cancelar</button>
             </form>
         </div>
     );
