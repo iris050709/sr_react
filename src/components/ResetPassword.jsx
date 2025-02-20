@@ -42,7 +42,7 @@ const ResetPassword = () => {
     };
 
     const handleCancel = () => {
-        navigate("/");  // Redirige al inicio
+        navigate("/"); 
     };
 
     return (

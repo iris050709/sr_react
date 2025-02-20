@@ -1,5 +1,5 @@
 .perfil-usuario {
-    background-color: #e3f2fd; /* Azul claro */
+    background-color: #e3f2fd;
     padding: 20px;
     border-radius: 10px;
     text-align: center;
@@ -9,7 +9,7 @@
 }
 
 .rol {
-    color: #0d47a1; /* Azul oscuro */
+    color: #0d47a1; 
     font-size: 1.5em;
     font-weight: bold;
 }
@@ -18,7 +18,7 @@
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    border: 3px solid #1976d2; /* Borde azul */
+    border: 3px solid #1976d2; 
     margin: 10px 0;
 }
 

@@ -13,9 +13,8 @@ const FormularioLogin = () => {
     const [resetEmail, setResetEmail] = useState("");
     const [resetCode, setResetCode] = useState("");
     const [showCodeInput, setShowCodeInput] = useState(false);
-    const [codeError, setCodeError] = useState(""); // Estado para manejar error en código
-    const [isVerifying, setIsVerifying] = useState(false); // Estado para deshabilitar botón mientras se verifica el código
-
+    const [codeError, setCodeError] = useState(""); 
+    const [isVerifying, setIsVerifying] = useState(false); 
     const handleChange = (e) => {
         setFormData((prevState) => ({ ...prevState, [e.target.name]: e.target.value }));
     };
@@ -51,7 +50,7 @@ const FormularioLogin = () => {
     const handleVerifyCode = async () => {
         console.log("Enviando:", { correo: resetEmail, codigo: resetCode });
 
-        setIsVerifying(true); // Deshabilitar el botón mientras se verifica el código
+        setIsVerifying(true); 
 
         try {
             const response = await axios.post("http://localhost:3000/api/verify-reset-code", {
@@ -67,7 +66,7 @@ const FormularioLogin = () => {
         } catch (error) {
             setCodeError(error.response?.data?.message || "Error al verificar el código.");
         } finally {
-            setIsVerifying(false); // Habilitar el botón después de la verificación
+            setIsVerifying(false); 
         }
     };
 

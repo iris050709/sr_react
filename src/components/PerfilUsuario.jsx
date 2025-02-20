@@ -33,7 +33,6 @@ const PerfilUsuario = () => {
         navigate("/");
     };
 
-    // Función para renderizar contenido según el rol
     const renderProfileContent = () => {
         switch (usuario.rol) {
             case "Usuario":
